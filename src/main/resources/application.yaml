@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: GeyserDump
+  data:
+    mongodb:
+      host: 127.0.0.1
+      authentication-database: admin
+      database: dump
+      username: dump
+      password: dump
+
+server:
+  port: 8082
