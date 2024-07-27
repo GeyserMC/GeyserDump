@@ -1,6 +1,7 @@
 package org.geysermc.dump;
 
 import com.google.common.base.Suppliers;
+import org.geysermc.dump.config.MainConfig;
 import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;

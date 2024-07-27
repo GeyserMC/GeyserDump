@@ -1,7 +1,7 @@
 package org.geysermc.dump.controllers;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletResponse;
-import org.geysermc.dump.AnalysedDump;
 import org.geysermc.dump.KeyResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Hidden
 public class OldController {
 
     private final DumpController dumpController;

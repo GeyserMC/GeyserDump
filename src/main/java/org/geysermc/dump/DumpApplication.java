@@ -1,5 +1,6 @@
 package org.geysermc.dump;
 
+import org.geysermc.dump.config.MainConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

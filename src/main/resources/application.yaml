@@ -11,3 +11,13 @@ spring:
 
 server:
   port: 8082
+
+springdoc:
+  api-docs:
+    path: "/openapi"
+  show-actuator: false
+  swagger-ui:
+    disable-swagger-default-url: true
+    operations-sorter: "alpha"
+    path: "/docs/"
+    show-common-extensions: true
