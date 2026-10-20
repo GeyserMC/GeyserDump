@@ -42,19 +42,19 @@ public class FloodgateCheck extends AbstractCheck {
     @Override
     public List<String> checkIssues(JsonNode dump) {
         JsonNode bootstrapInfo = dump.required("bootstrapInfo");
-        JsonNode configRemote = dump.required("config").required("remote");
+        JsonNode configRemote = dump.required("config").required("java");
 
         List<String> problems = new ArrayList<>();
 
         // Check plugins
         if (bootstrapInfo.has("plugins")) {
-            String authType = configRemote.required("auth-type").stringValue();
-            boolean needsFloodgate = authType.equalsIgnoreCase("floodgate");
+            boolean needsFloodgate = configRemote.required("auth-type").stringValue().equalsIgnoreCase("floodgate");
             boolean needsFloodgateAuthType = false;
 
-            for (JsonNode plugin : bootstrapInfo.required("plugins")) {
+            JsonNode plugins = bootstrapInfo.required("plugins");
+            for (JsonNode plugin : plugins) {
                 // Check if floodgate is installed
-                if (plugin.required("name").stringValue().toLowerCase().contains("floodgate")) {
+                if (plugin.has("name") && plugin.required("name").stringValue().toLowerCase().contains("floodgate")) {
                     // Check if its enabled
                     if (plugin.required("enabled").asBoolean()) {
                         needsFloodgate = false;
@@ -72,8 +72,8 @@ public class FloodgateCheck extends AbstractCheck {
             // Add any problem messages relates to floodgate
             if (needsFloodgate) {
                 problems.add("`auth-type` is set to `floodgate`, but you don't have Floodgate installed! Download it [here](https://geysermc.org/download#floodgate).");
-            } else if (needsFloodgateAuthType && !authType.equalsIgnoreCase("floodgate")) {
-                problems.add("You have Floodgate installed, but `auth-type` is set to `" + authType + "`! Set it to `floodgate` if you want to use Floodgate.");
+            } else if (needsFloodgateAuthType && !configRemote.required("auth-type").stringValue().equalsIgnoreCase("floodgate")) {
+                problems.add("You have Floodgate installed, but `auth-type` is set to `" + configRemote.required("auth-type").stringValue() + "`! Set it to `floodgate` if you want to use Floodgate.");
             }
         }
 

@@ -22,6 +22,7 @@
  * @author GeyserMC
  * @link https://github.com/GeyserMC/GeyserDump
  */
+
 package org.geysermc.dump.util;
 
 import org.slf4j.Logger;
@@ -46,13 +47,13 @@ public class RestClient {
             .build();
 
     /**
-     * Make a GET request and parse the response body as JSON
+     * Make a GET request
      *
      * @param url the url to get
      * @throws RuntimeException If the request fails
-     * @return the parsed response body
+     * @return the response
      */
-    public static JsonNode getJson(String url) {
+    public static Response get(String url) {
         HttpRequest request = HttpRequest.newBuilder(URI.create(url))
                 .header("User-Agent", USER_AGENT)
                 .timeout(TIMEOUT)
@@ -61,10 +62,26 @@ public class RestClient {
         LOGGER.debug("Making call to GET {}", url);
         try {
             HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            return JsonMapper.shared().readTree(response.body());
+            return new Response(response.statusCode(), response.body());
         } catch (IOException | InterruptedException e) {
             // Rethrow exceptions as runtime
             throw new RuntimeException(e);
+        }
+    }
+
+    public record Response(int code, String body) {
+        /**
+         * @return true if the response has a 2xx status code
+         */
+        public boolean success() {
+            return code >= 200 && code < 300;
+        }
+
+        /**
+         * @return the response body parsed as JSON
+         */
+        public JsonNode asJson() {
+            return JsonMapper.shared().readTree(body);
         }
     }
 }

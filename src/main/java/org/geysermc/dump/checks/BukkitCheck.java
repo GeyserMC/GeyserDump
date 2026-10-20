@@ -35,6 +35,11 @@ import java.util.List;
 public class BukkitCheck extends AbstractCheck {
 
     @Override
+    public boolean compatiblePlatform(String platform) {
+        return platform.equals("SPIGOT");
+    }
+
+    @Override
     public List<String> checkIssues(JsonNode dump) {
         JsonNode bootstrapInfo = dump.required("bootstrapInfo");
         String platformName = bootstrapInfo.required("platformName").stringValue();

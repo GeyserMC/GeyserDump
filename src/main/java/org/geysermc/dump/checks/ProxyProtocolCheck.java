@@ -36,16 +36,17 @@ public class ProxyProtocolCheck extends AbstractCheck {
 
     @Override
     public List<String> checkIssues(JsonNode dump) {
-        JsonNode configRemote = dump.required("config").required("remote");
-        JsonNode configBedrock = dump.required("config").required("bedrock");
+        JsonNode configAdvanced = dump.required("config").required("advanced");
+        JsonNode configJava = configAdvanced.required("java");
+        JsonNode configBedrock = configAdvanced.required("bedrock");
 
         List<String> warnings = new ArrayList<>();
 
-        if (configBedrock.required("enable-proxy-protocol").asBoolean()) {
-            warnings.add("`enable-proxy-protocol` should ONLY be enabled if you run a reverse UDP proxy in front of Geyser.");
+        if (configBedrock.required("use-haproxy-protocol").asBoolean()) {
+            warnings.add("`advanced.bedrock.use-haproxy-protocol` should ONLY be enabled if you run a reverse UDP proxy in front of Geyser that supports HAPROXY protocol.");
         }
-        if (configRemote.required("use-proxy-protocol").asBoolean()) {
-            warnings.add("`use-proxy-protocol` should ONLY be enabled if either of these apply:\n\u00A0\u00A0\u00A0\u00A01. Your server supports PROXY protocol (this has nothing to do with if you're using BungeeCord or Velocity).\n\u00A0\u00A0\u00A0\u00A02. You have the exact same option enabled in your BungeeCord/Velocity config (it is off by default).");
+        if (configJava.required("use-haproxy-protocol").asBoolean()) {
+            warnings.add("`advanced.java.use-haproxy-protocol` should ONLY be enabled if either of these apply:\n    1. Your server supports HAPROXY protocol (this has nothing to do with if you're using BungeeCord or Velocity).\n    2. You have the exact same option enabled in your BungeeCord/Velocity config (it is off by default).");
         }
 
         return warnings;

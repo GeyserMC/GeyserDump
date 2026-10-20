@@ -42,18 +42,17 @@ public class VersionCheck extends AbstractCheck {
     @Override
     public List<String> checkIssues(JsonNode dump) {
         JsonNode bootstrapInfo = dump.required("bootstrapInfo");
-        String platform = bootstrapInfo.required("platform").stringValue();
+        String platform = bootstrapInfo.required("platform").required("platformName").stringValue().toUpperCase();
         JsonNode jsonSupportedMinecraft = dump.required("versionInfo").required("mcInfo");
         List<String> supportedMinecraft;
-        JsonNode javaVersions = jsonSupportedMinecraft.get("javaVersions");
-        if (javaVersions != null && javaVersions.isArray()) {
-            supportedMinecraft = javaVersions.valueStream().map(JsonNode::stringValue).toList();
+        if (jsonSupportedMinecraft.get("javaVersions") instanceof JsonNode array && array.isArray()) {
+            supportedMinecraft = array.valueStream().map(JsonNode::stringValue).toList();
         } else {
             supportedMinecraft = Collections.singletonList(jsonSupportedMinecraft.required("javaVersion").stringValue());
         }
 
         boolean isOldVersion = false;
-        if (!(platform.equals("BUNGEECORD") || platform.equals("VELOCITY") || platform.equals("FABRIC") || platform.equals("ANDROID"))) {
+        if (!(platform.equals("BUNGEECORD") || platform.equals("VELOCITY") || platform.equals("FABRIC"))) {
             for (String version : supportedMinecraft) {
                 isOldVersion = !bootstrapInfo.required("platformVersion").stringValue().contains(version);
                 if (!isOldVersion) {
@@ -66,9 +65,10 @@ public class VersionCheck extends AbstractCheck {
 
         // Check plugins
         if (bootstrapInfo.has("plugins")) {
-            for (JsonNode plugin : bootstrapInfo.required("plugins")) {
+            JsonNode plugins = bootstrapInfo.required("plugins");
+            for (JsonNode plugin : plugins) {
                 // Check if VV is installed
-                if (plugin.required("name").stringValue().equals("ViaVersion") && plugin.required("enabled").asBoolean()) {
+                if (plugin.has("name") && plugin.required("name").stringValue().equals("ViaVersion") && plugin.required("enabled").asBoolean()) {
                     isOldVersion = false;
                     break;
                 }
@@ -77,9 +77,9 @@ public class VersionCheck extends AbstractCheck {
 
         if (isOldVersion) {
             if (supportedMinecraft.size() > 1) {
-                return Collections.singletonList("Your server is not on one the following Minecraft versions: " + supportedMinecraft + "! If you're on an old version you can use [ViaVersion](https://www.spigotmc.org/resources/viaversion.19254/).");
+                return Collections.singletonList("Your server is not on one the following Minecraft versions: " + supportedMinecraft + "! If you're on an old version you can use [ViaVersion](https://viaversion.com/viaversion).");
             } else {
-                return Collections.singletonList("Your server is not on Minecraft " + supportedMinecraft.get(0) + "! If you're on an old version you can use [ViaVersion](https://www.spigotmc.org/resources/viaversion.19254/).");
+                return Collections.singletonList("Your server is not on Minecraft " + supportedMinecraft.get(0) + "! If you're on an old version you can use [ViaVersion](https://viaversion.com/viaversion).");
             }
         }
 
