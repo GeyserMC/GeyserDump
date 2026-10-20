@@ -2,11 +2,12 @@ package org.geysermc.dump.database.model;
 
 import org.bson.types.ObjectId;
 import org.geysermc.dump.checks.AbstractCheck;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -30,29 +31,32 @@ public record StoredDump(
     }
 
     public static StoredDump from(String id, String dumpData) {
-        JSONObject bootstrapInfo;
-        JSONObject dump;
+        JsonNode bootstrapInfo;
+        JsonNode dump;
         try {
             // Get json data from dump
-            dump = new JSONObject(dumpData);
+            dump = JsonMapper.shared().readTree(dumpData);
+            if (!dump.isObject()) {
+                throw new IllegalArgumentException("Invalid dump");
+            }
 
             // Check the dump isn't empty or an error message
-            if (dump.isEmpty() || (dump.length() == 1 && dump.has("message"))) {
+            if (dump.isEmpty() || (dump.size() == 1 && dump.has("message"))) {
                 throw new IllegalArgumentException("Empty dump");
             }
 
             // Setup some helper vars for quicker access
-            bootstrapInfo = dump.getJSONObject("bootstrapInfo");
-        } catch (JSONException ignored) {
+            bootstrapInfo = dump.required("bootstrapInfo");
+        } catch (JacksonException ignored) {
             throw new IllegalArgumentException("Invalid dump");
         }
 
-        Object platformObj = bootstrapInfo.get("platform");
+        JsonNode platformNode = bootstrapInfo.required("platform");
         String platform = "";
-        if (platformObj instanceof String) {
-            platform = (String) platformObj;
+        if (platformNode.isString()) {
+            platform = platformNode.stringValue();
         } else {
-            platform = ((JSONObject) platformObj).getString("platformName").toUpperCase();
+            platform = platformNode.required("platformName").stringValue().toUpperCase();
         }
         List<String> problems = new ArrayList<>();
 
@@ -61,7 +65,7 @@ public record StoredDump(
             if (issueCheck.compatiblePlatform(platform)) {
                 try {
                     problems.addAll(issueCheck.checkIssues(dump));
-                } catch (JSONException ignored) {
+                } catch (JacksonException ignored) {
                 }
             }
         }

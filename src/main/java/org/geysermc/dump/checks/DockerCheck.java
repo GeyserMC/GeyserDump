@@ -26,7 +26,7 @@
 package org.geysermc.dump.checks;
 
 import com.google.auto.service.AutoService;
-import org.json.JSONObject;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,11 +35,11 @@ import java.util.List;
 public class DockerCheck extends AbstractCheck {
 
     @Override
-    public List<String> checkIssues(JSONObject dump) {
-        JSONObject versionInfo = dump.getJSONObject("versionInfo");
-        JSONObject network = versionInfo.getJSONObject("network");
+    public List<String> checkIssues(JsonNode dump) {
+        JsonNode versionInfo = dump.required("versionInfo");
+        JsonNode network = versionInfo.required("network");
 
-        if (network.getBoolean("dockerCheck")) {
+        if (network.required("dockerCheck").asBoolean()) {
             return Collections.singletonList("Your server is running inside a docker container, please make sure the Geyser port (using UDP) is exported out to the host. If you're using Pterodactyl panel then you need to make sure you have allocated the port to the server.");
         }
 

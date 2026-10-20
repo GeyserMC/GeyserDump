@@ -23,9 +23,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
 
-	// Json
-	implementation("org.json:json:20240303")
-
 	// Auto-Service
 	compileOnly("com.google.auto.service:auto-service:1.0.1")
 	annotationProcessor("com.google.auto.service:auto-service:1.0.1")

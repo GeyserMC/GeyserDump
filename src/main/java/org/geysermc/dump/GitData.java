@@ -1,9 +1,9 @@
 package org.geysermc.dump;
 
-import org.json.JSONObject;
 import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHCompare;
 import org.kohsuke.github.GHRepository;
+import tools.jackson.databind.JsonNode;
 
 import java.io.IOException;
 
@@ -16,8 +16,8 @@ public record GitData(
     boolean fork,
     String url
 ) {
-    public static GitData from(JSONObject gitInfo) {
-        String gitUrl = gitInfo.getString("git.remote.origin.url").replaceAll("\\.git$", "");
+    public static GitData from(JsonNode gitInfo) {
+        String gitUrl = gitInfo.required("git.remote.origin.url").stringValue().replaceAll("\\.git$", "");
 
         GHRepository repo = GithubHandler.INSTANCE.getRepo();
 
@@ -27,7 +27,7 @@ public record GitData(
         // Compare latest and current
         GHCompare compare = null;
         try {
-            compare = repo.getCompare(latestCommit, repo.getCommit(gitInfo.getString("git.commit.id")));
+            compare = repo.getCompare(latestCommit, repo.getCommit(gitInfo.required("git.commit.id").stringValue()));
         } catch (IOException e) {
             // TODO Log the error somewhere
 //            MessageHelper.errorResponse(event, "Failed to get latest commit", "There was an issue trying to get the latest commit!\n" + e.getMessage());
@@ -35,8 +35,8 @@ public record GitData(
         }
 
         return new GitData(
-            gitInfo.getString("git.commit.id"),
-            gitInfo.getString("git.branch"),
+            gitInfo.required("git.commit.id").stringValue(),
+            gitInfo.required("git.branch").stringValue(),
             compare != null ? compare.getAheadBy() : 0,
             compare != null ? compare.getBehindBy() : 0,
             compare != null && compare.getBehindBy() == 0 && compare.getAheadBy() == 0,

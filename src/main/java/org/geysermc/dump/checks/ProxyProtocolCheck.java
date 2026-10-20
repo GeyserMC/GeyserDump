@@ -26,7 +26,7 @@
 package org.geysermc.dump.checks;
 
 import com.google.auto.service.AutoService;
-import org.json.JSONObject;
+import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,16 +35,16 @@ import java.util.List;
 public class ProxyProtocolCheck extends AbstractCheck {
 
     @Override
-    public List<String> checkIssues(JSONObject dump) {
-        JSONObject configRemote = dump.getJSONObject("config").getJSONObject("remote");
-        JSONObject configBedrock = dump.getJSONObject("config").getJSONObject("bedrock");
+    public List<String> checkIssues(JsonNode dump) {
+        JsonNode configRemote = dump.required("config").required("remote");
+        JsonNode configBedrock = dump.required("config").required("bedrock");
 
         List<String> warnings = new ArrayList<>();
 
-        if (configBedrock.getBoolean("enable-proxy-protocol")) {
+        if (configBedrock.required("enable-proxy-protocol").asBoolean()) {
             warnings.add("`enable-proxy-protocol` should ONLY be enabled if you run a reverse UDP proxy in front of Geyser.");
         }
-        if (configRemote.getBoolean("use-proxy-protocol")) {
+        if (configRemote.required("use-proxy-protocol").asBoolean()) {
             warnings.add("`use-proxy-protocol` should ONLY be enabled if either of these apply:\n\u00A0\u00A0\u00A0\u00A01. Your server supports PROXY protocol (this has nothing to do with if you're using BungeeCord or Velocity).\n\u00A0\u00A0\u00A0\u00A02. You have the exact same option enabled in your BungeeCord/Velocity config (it is off by default).");
         }
 

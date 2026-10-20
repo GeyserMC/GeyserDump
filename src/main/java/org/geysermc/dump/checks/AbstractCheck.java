@@ -26,8 +26,8 @@
 package org.geysermc.dump.checks;
 
 import com.google.auto.service.AutoService;
-import org.json.JSONException;
-import org.json.JSONObject;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import java.util.List;
 
@@ -37,5 +37,5 @@ public abstract class AbstractCheck {
         return true;
     }
 
-    public abstract List<String> checkIssues(JSONObject dump) throws JSONException;
+    public abstract List<String> checkIssues(JsonNode dump) throws JacksonException;
 }

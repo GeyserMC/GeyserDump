@@ -1,8 +1,9 @@
 package org.geysermc.dump;
 
 import org.geysermc.dump.database.model.StoredDump;
-import org.json.JSONException;
-import org.json.JSONObject;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,20 +16,23 @@ public record AnalysedDump(
     Instant createdAt
 ) {
     public static AnalysedDump from(StoredDump storedDump) {
-        JSONObject gitInfo;
-        JSONObject dump;
+        JsonNode gitInfo;
+        JsonNode dump;
         try {
             // Get json data from dump
-            dump = new JSONObject(storedDump.raw());
+            dump = JsonMapper.shared().readTree(storedDump.raw());
+            if (!dump.isObject()) {
+                throw new IllegalArgumentException("Invalid dump");
+            }
 
             // Check the dump isn't empty or an error message
-            if (dump.isEmpty() || (dump.length() == 1 && dump.has("message"))) {
+            if (dump.isEmpty() || (dump.size() == 1 && dump.has("message"))) {
                 throw new IllegalArgumentException("Empty dump");
             }
 
             // Setup some helper vars for quicker access
-            gitInfo = dump.getJSONObject("gitInfo");
-        } catch (JSONException ignored) {
+            gitInfo = dump.required("gitInfo");
+        } catch (JacksonException ignored) {
             throw new IllegalArgumentException("Invalid dump");
         }
 

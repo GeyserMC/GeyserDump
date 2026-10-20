@@ -26,8 +26,8 @@
 package org.geysermc.dump.checks;
 
 import com.google.auto.service.AutoService;
-import org.json.JSONObject;
-import pw.chew.chewbotcca.util.RestClient;
+import org.geysermc.dump.util.RestClient;
+import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,25 +36,24 @@ import java.util.List;
 public class IntegrityCheck extends AbstractCheck {
 
     @Override
-    public List<String> checkIssues(JSONObject dump) {
+    public List<String> checkIssues(JsonNode dump) {
         List<String> issues = new ArrayList<>();
 
         try {
-            String versionNumber = dump.getJSONObject("versionInfo").getString("version").split("-")[0];
-            String buildNumber = dump.getJSONObject("gitInfo").getString("buildNumber");
+            String versionNumber = dump.required("versionInfo").required("version").stringValue().split("-")[0];
+            String buildNumber = dump.required("gitInfo").required("buildNumber").stringValue();
 
-            JSONObject buildInfo = RestClient.get("https://download.geysermc.org/v2/projects/geyser/versions/" + versionNumber + "/builds/" + buildNumber).asJSONObject();
+            JsonNode buildInfo = RestClient.getJson("https://download.geysermc.org/v2/projects/geyser/versions/" + versionNumber + "/builds/" + buildNumber);
 
             if (buildInfo.has("error")) {
                 return issues;
             }
 
-            String buildHash = dump.getJSONObject("hashInfo").getString("sha256Hash");
+            String buildHash = dump.required("hashInfo").required("sha256Hash").stringValue();
 
             boolean found = false;
-            JSONObject downloads = buildInfo.getJSONObject("downloads");
-            for (String downloadKey : downloads.keySet()) {
-                String sha256 = downloads.getJSONObject(downloadKey).getString("sha256");
+            for (JsonNode download : buildInfo.required("downloads").values()) {
+                String sha256 = download.required("sha256").stringValue();
 
                 if (sha256.equalsIgnoreCase(buildHash)) {
                     found = true;

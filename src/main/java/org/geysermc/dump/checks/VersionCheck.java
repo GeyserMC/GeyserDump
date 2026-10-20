@@ -26,12 +26,10 @@
 package org.geysermc.dump.checks;
 
 import com.google.auto.service.AutoService;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 @AutoService(AbstractCheck.class)
 public class VersionCheck extends AbstractCheck {
@@ -42,21 +40,22 @@ public class VersionCheck extends AbstractCheck {
     }
 
     @Override
-    public List<String> checkIssues(JSONObject dump) {
-        JSONObject bootstrapInfo = dump.getJSONObject("bootstrapInfo");
-        String platform = bootstrapInfo.getString("platform");
-        JSONObject jsonSupportedMinecraft = dump.getJSONObject("versionInfo").getJSONObject("mcInfo");
+    public List<String> checkIssues(JsonNode dump) {
+        JsonNode bootstrapInfo = dump.required("bootstrapInfo");
+        String platform = bootstrapInfo.required("platform").stringValue();
+        JsonNode jsonSupportedMinecraft = dump.required("versionInfo").required("mcInfo");
         List<String> supportedMinecraft;
-        if (jsonSupportedMinecraft.get("javaVersions") instanceof JSONArray array) {
-            supportedMinecraft = StreamSupport.stream(array.spliterator(), false).map((object) -> (String) object).toList();
+        JsonNode javaVersions = jsonSupportedMinecraft.get("javaVersions");
+        if (javaVersions != null && javaVersions.isArray()) {
+            supportedMinecraft = javaVersions.valueStream().map(JsonNode::stringValue).toList();
         } else {
-            supportedMinecraft = Collections.singletonList(jsonSupportedMinecraft.getString("javaVersion"));
+            supportedMinecraft = Collections.singletonList(jsonSupportedMinecraft.required("javaVersion").stringValue());
         }
 
         boolean isOldVersion = false;
         if (!(platform.equals("BUNGEECORD") || platform.equals("VELOCITY") || platform.equals("FABRIC") || platform.equals("ANDROID"))) {
             for (String version : supportedMinecraft) {
-                isOldVersion = !bootstrapInfo.getString("platformVersion").contains(version);
+                isOldVersion = !bootstrapInfo.required("platformVersion").stringValue().contains(version);
                 if (!isOldVersion) {
                     break;
                 }
@@ -67,12 +66,9 @@ public class VersionCheck extends AbstractCheck {
 
         // Check plugins
         if (bootstrapInfo.has("plugins")) {
-            JSONArray plugins = bootstrapInfo.getJSONArray("plugins");
-            for (int i = 0; i < plugins.length(); i++) {
-                JSONObject plugin = plugins.getJSONObject(i);
-
+            for (JsonNode plugin : bootstrapInfo.required("plugins")) {
                 // Check if VV is installed
-                if (plugin.getString("name").equals("ViaVersion") && plugin.getBoolean("enabled")) {
+                if (plugin.required("name").stringValue().equals("ViaVersion") && plugin.required("enabled").asBoolean()) {
                     isOldVersion = false;
                     break;
                 }

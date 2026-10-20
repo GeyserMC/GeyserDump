@@ -26,7 +26,7 @@
 package org.geysermc.dump.checks;
 
 import com.google.auto.service.AutoService;
-import org.json.JSONObject;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,11 +35,11 @@ import java.util.List;
 public class BukkitCheck extends AbstractCheck {
 
     @Override
-    public List<String> checkIssues(JSONObject dump) {
-        JSONObject bootstrapInfo = dump.getJSONObject("bootstrapInfo");
-        String platformName = bootstrapInfo.getString("platformName");
+    public List<String> checkIssues(JsonNode dump) {
+        JsonNode bootstrapInfo = dump.required("bootstrapInfo");
+        String platformName = bootstrapInfo.required("platformName").stringValue();
 
-        if (platformName.equals("CraftBukkit") && !bootstrapInfo.getString("platformVersion").contains("Spigot")) {
+        if (platformName.equals("CraftBukkit") && !bootstrapInfo.required("platformVersion").stringValue().contains("Spigot")) {
             return Collections.singletonList("Your server is running on CraftBukkit; please switch over to Spigot or Paper (run `!!bukkit` in <#613194762249437245> for more information).");
         }
 
