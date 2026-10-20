@@ -1,7 +1,7 @@
 plugins {
 	java
-	id("org.springframework.boot") version "4.1.1"
-	id("io.spring.dependency-management") version "1.1.7"
+	alias(libs.plugins.spring.boot)
+	alias(libs.plugins.spring.dependency.management)
 }
 
 group = "org.geysermc"
@@ -18,25 +18,25 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-	implementation("org.springframework.boot:spring-boot-starter-validation")
-	implementation("org.springframework.boot:spring-boot-starter-webmvc")
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
+	implementation(libs.spring.boot.starter.data.mongodb)
+	implementation(libs.spring.boot.starter.validation)
+	implementation(libs.spring.boot.starter.webmvc)
+	implementation(libs.springdoc.openapi.webmvc.ui)
 
 	// Auto-Service
-	compileOnly("com.google.auto.service:auto-service:1.0.1")
-	annotationProcessor("com.google.auto.service:auto-service:1.0.1")
+	compileOnly(libs.auto.service)
+	annotationProcessor(libs.auto.service)
 
 	// Github API
-	implementation("org.kohsuke:github-api:1.330")
+	implementation(libs.github.api)
 
 	// Guava
-	implementation("com.google.guava:guava:33.7.2-jre")
+	implementation(libs.guava)
 
-	testImplementation("org.springframework.boot:spring-boot-starter-data-mongodb-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testImplementation(libs.spring.boot.starter.data.mongodb.test)
+	testImplementation(libs.spring.boot.starter.validation.test)
+	testImplementation(libs.spring.boot.starter.webmvc.test)
+	testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<Test> {

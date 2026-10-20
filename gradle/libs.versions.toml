@@ -1,0 +1,26 @@
+[versions]
+spring-boot = "4.1.1"
+spring-dependency-management = "1.1.7"
+springdoc = "3.1.0"
+auto-service = "1.0.1"
+github-api = "1.330"
+guava = "33.7.2-jre"
+
+[libraries]
+# Versions managed by the Spring Boot BOM
+spring-boot-starter-data-mongodb = { module = "org.springframework.boot:spring-boot-starter-data-mongodb" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
+spring-boot-starter-data-mongodb-test = { module = "org.springframework.boot:spring-boot-starter-data-mongodb-test" }
+spring-boot-starter-validation-test = { module = "org.springframework.boot:spring-boot-starter-validation-test" }
+spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+springdoc-openapi-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+auto-service = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
+github-api = { module = "org.kohsuke:github-api", version.ref = "github-api" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
