@@ -1,6 +1,30 @@
+/*
+ * Copyright (c) 2024-2026 GeyserMC. http://geysermc.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @author GeyserMC
+ * @link https://github.com/GeyserMC/GeyserDump
+ */
+
 package org.geysermc.dump.controllers;
 
-import com.google.common.hash.Hashing;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -50,7 +74,7 @@ public class DumpController {
         @PathVariable
         String dumpId
     ) {
-        Optional<StoredDump> storedDump = dumpCollection.findById(Hashing.md5().hashUnencodedChars(dumpId).toString());
+        Optional<StoredDump> storedDump = dumpCollection.findById(dumpId);
 
         if (storedDump.isEmpty()) {
             response.setStatus(404);
@@ -74,7 +98,7 @@ public class DumpController {
         @PathVariable
         String dumpId
     ) {
-        Optional<StoredDump> storedDump = dumpCollection.findById(Hashing.md5().hashUnencodedChars(dumpId).toString());
+        Optional<StoredDump> storedDump = dumpCollection.findById(dumpId);
 
         if (storedDump.isEmpty()) {
             response.setStatus(404);
@@ -93,25 +117,9 @@ public class DumpController {
         @RequestBody
         String dumpData
     ) {
-        String id;
-        String idHash;
-
-        // Generate a unique id for the dump 32 characters long
-        // TODO Add some checks to prevent this from being an infinite loop
-        do {
-            id = "";
-
-            String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            for (int i = 0; i < 32; i++) {
-                id += chars.charAt((int) (Math.random() * chars.length()));
-            }
-
-            idHash = Hashing.md5().hashUnencodedChars(id).toString();
-        } while (dumpCollection.countById(idHash) > 0);
-
-        dumpCollection.insert(StoredDump.from(idHash, dumpData));
+        StoredDump storedDump = dumpCollection.save(StoredDump.from(dumpData));
 
         response.setStatus(200);
-        return new KeyResponse(id);
+        return new KeyResponse(storedDump.id());
     }
 }

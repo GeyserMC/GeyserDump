@@ -25,11 +25,9 @@
 
 package org.geysermc.dump.database.model;
 
-import org.bson.types.ObjectId;
 import org.geysermc.dump.checks.AbstractCheck;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.relational.core.mapping.Table;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -39,13 +37,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-@Document("dumps")
+@Table("dumps")
 public record StoredDump(
-    @Id ObjectId _id,
-    String id,
+    @Id String id,
     List<String> problems,
     String raw,
-    @CreatedDate Instant createdAt
+    Instant createdAt
 ) {
     private static final List<AbstractCheck> CHECKS;
 
@@ -55,7 +52,7 @@ public record StoredDump(
             .toList();
     }
 
-    public static StoredDump from(String id, String dumpData) {
+    public static StoredDump from(String dumpData) {
         JsonNode bootstrapInfo;
         JsonNode dump;
         try {
@@ -95,6 +92,6 @@ public record StoredDump(
             }
         }
 
-        return new StoredDump(null, id, problems, dump.toString(), Instant.now());
+        return new StoredDump(null, problems, dump.toString(), Instant.now());
     }
 }

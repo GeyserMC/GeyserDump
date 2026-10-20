@@ -7,19 +7,45 @@ github-api = "1.330"
 guava = "33.7.2-jre"
 
 [libraries]
-# Versions managed by the Spring Boot BOM
-spring-boot-starter-data-mongodb = { module = "org.springframework.boot:spring-boot-starter-data-mongodb" }
-spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+# Web (Spring versions managed by the Spring Boot BOM)
 spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
-spring-boot-starter-data-mongodb-test = { module = "org.springframework.boot:spring-boot-starter-data-mongodb-test" }
-spring-boot-starter-validation-test = { module = "org.springframework.boot:spring-boot-starter-validation-test" }
-spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
-
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 springdoc-openapi-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+
+# Database (versions managed by the Spring Boot BOM)
+spring-boot-starter-data-jdbc = { module = "org.springframework.boot:spring-boot-starter-data-jdbc" }
+spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
+postgresql = { module = "org.postgresql:postgresql" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
+
+# Misc
 auto-service = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
 github-api = { module = "org.kohsuke:github-api", version.ref = "github-api" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
+
+# Testing (versions managed by the Spring Boot BOM)
+spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
+spring-boot-starter-validation-test = { module = "org.springframework.boot:spring-boot-starter-validation-test" }
+spring-boot-starter-data-jdbc-test = { module = "org.springframework.boot:spring-boot-starter-data-jdbc-test" }
+spring-boot-starter-flyway-test = { module = "org.springframework.boot:spring-boot-starter-flyway-test" }
+spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+[bundles]
+web = ["spring-boot-starter-webmvc", "spring-boot-starter-validation", "springdoc-openapi-webmvc-ui"]
+database = ["spring-boot-starter-data-jdbc", "spring-boot-starter-flyway"]
+database-runtime = ["postgresql", "flyway-database-postgresql"]
+test = [
+    "spring-boot-starter-webmvc-test",
+    "spring-boot-starter-validation-test",
+    "spring-boot-starter-data-jdbc-test",
+    "spring-boot-starter-flyway-test",
+    "spring-boot-testcontainers",
+    "testcontainers-junit-jupiter",
+    "testcontainers-postgresql",
+]
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

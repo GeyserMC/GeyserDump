@@ -1,13 +1,10 @@
 spring:
   application:
     name: GeyserDump
-  data:
-    mongodb:
-      host: 127.0.0.1
-      authentication-database: admin
-      database: dump
-      username: dump
-      password: dump
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5432/dump
+    username: dump
+    password: dump
 
 server:
   port: 8082

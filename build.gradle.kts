@@ -18,24 +18,21 @@ repositories {
 }
 
 dependencies {
-	implementation(libs.spring.boot.starter.data.mongodb)
-	implementation(libs.spring.boot.starter.validation)
-	implementation(libs.spring.boot.starter.webmvc)
-	implementation(libs.springdoc.openapi.webmvc.ui)
+	// Web
+	implementation(libs.bundles.web)
 
-	// Auto-Service
+	// Database
+	implementation(libs.bundles.database)
+	runtimeOnly(libs.bundles.database.runtime)
+
+	// Misc
+	implementation(libs.github.api)
+	implementation(libs.guava)
 	compileOnly(libs.auto.service)
 	annotationProcessor(libs.auto.service)
 
-	// Github API
-	implementation(libs.github.api)
-
-	// Guava
-	implementation(libs.guava)
-
-	testImplementation(libs.spring.boot.starter.data.mongodb.test)
-	testImplementation(libs.spring.boot.starter.validation.test)
-	testImplementation(libs.spring.boot.starter.webmvc.test)
+	// Testing
+	testImplementation(libs.bundles.test)
 	testRuntimeOnly(libs.junit.platform.launcher)
 }
 
