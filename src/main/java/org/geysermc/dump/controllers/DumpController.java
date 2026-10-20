@@ -27,10 +27,6 @@ package org.geysermc.dump.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
@@ -74,7 +70,7 @@ public class DumpController {
         @PathVariable
         String dumpId
     ) {
-        Optional<StoredDump> storedDump = dumpCollection.findById(dumpId);
+        Optional<StoredDump> storedDump = dumpCollection.findByKey(dumpId);
 
         if (storedDump.isEmpty()) {
             response.setStatus(404);
@@ -98,7 +94,7 @@ public class DumpController {
         @PathVariable
         String dumpId
     ) {
-        Optional<StoredDump> storedDump = dumpCollection.findById(dumpId);
+        Optional<StoredDump> storedDump = dumpCollection.findByKey(dumpId);
 
         if (storedDump.isEmpty()) {
             response.setStatus(404);

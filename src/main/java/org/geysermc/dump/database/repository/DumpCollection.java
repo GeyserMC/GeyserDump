@@ -30,9 +30,22 @@ import org.springframework.data.repository.Repository;
 
 import java.util.Optional;
 
-@org.springframework.stereotype.Repository
 public interface DumpCollection extends Repository<StoredDump, String> {
     StoredDump save(StoredDump dump);
 
-    Optional<StoredDump> findById(String id);
+    Optional<StoredDump> findByIdAndLegacy(String id, boolean legacy);
+
+    /**
+     * Find a dump by the key from its url, looking up legacy keys by the hash they were stored under
+     *
+     * @param key the key from the url
+     * @return the dump if found
+     */
+    default Optional<StoredDump> findByKey(String key) {
+        if (StoredDump.isLegacyKey(key)) {
+            return findByIdAndLegacy(StoredDump.legacyId(key), true);
+        }
+
+        return findByIdAndLegacy(key, false);
+    }
 }
