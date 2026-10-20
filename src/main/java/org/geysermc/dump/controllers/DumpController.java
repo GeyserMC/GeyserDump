@@ -77,6 +77,8 @@ public class DumpController {
             return null;
         }
 
+        dumpCollection.markAccessed(storedDump.get().id());
+
         response.setStatus(200);
         return storedDump.get().raw();
     }
@@ -100,6 +102,8 @@ public class DumpController {
             response.setStatus(404);
             return null;
         }
+
+        dumpCollection.markAccessed(storedDump.get().id());
 
         response.setStatus(200);
         return AnalysedDump.from(storedDump.get());

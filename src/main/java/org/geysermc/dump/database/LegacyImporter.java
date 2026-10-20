@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
  * Imports dumps from the GeyserDump-js file store, where each dump is a file named by the md5 hash of its key.
  * <p>
  * Existing dumps are skipped, so it is safe to re-run to pick up dumps added since the last import.
- * Run with: {@code java -jar GeyserDump.jar --dump.legacy-import=/path/to/data --spring.main.web-application-type=none}
+ * Run with: {@code java -jar GeyserDump.jar --dump.legacy-import=/path/to/data --spring.main.web-application-type=none --dump.expiry.enabled=false}
  */
 @Component
 @ConditionalOnProperty("dump.legacy-import")
@@ -57,7 +57,7 @@ public class LegacyImporter implements ApplicationRunner {
     private static final int BATCH_SIZE = 500;
     private static final Pattern FILE_NAME = Pattern.compile("[a-f0-9]{32}");
 
-    private static final String INSERT = "INSERT INTO dumps (id, problems, raw, created_at, legacy) VALUES (?, ?, ?, ?, true) ON CONFLICT (id) DO NOTHING";
+    private static final String INSERT = "INSERT INTO dumps (id, problems, raw, created_at, last_accessed, legacy) VALUES (?, ?, ?, ?, ?, true) ON CONFLICT (id) DO NOTHING";
 
     private final JdbcTemplate jdbcTemplate;
     private final Path directory;
@@ -123,6 +123,7 @@ public class LegacyImporter implements ApplicationRunner {
             statement.setArray(2, statement.getConnection().createArrayOf("text", dump.problems().toArray()));
             statement.setString(3, dump.raw());
             statement.setTimestamp(4, Timestamp.from(dump.createdAt()));
+            statement.setTimestamp(5, Timestamp.from(dump.lastAccessed()));
         });
 
         int inserted = 0;

@@ -26,14 +26,30 @@
 package org.geysermc.dump.database.repository;
 
 import org.geysermc.dump.database.model.StoredDump;
+import org.springframework.data.jdbc.repository.query.Modifying;
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.Repository;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public interface DumpCollection extends Repository<StoredDump, String> {
     StoredDump save(StoredDump dump);
 
     Optional<StoredDump> findByIdAndLegacy(String id, boolean legacy);
+
+    /**
+     * Mark a dump as accessed, at most once a day to avoid a write on every view
+     *
+     * @param id the id of the dump
+     */
+    @Modifying
+    @Query("UPDATE dumps SET last_accessed = now() WHERE id = :id AND last_accessed < now() - interval '1 day'")
+    void markAccessed(String id);
+
+    @Modifying
+    @Query("DELETE FROM dumps WHERE last_accessed < :cutoff")
+    int deleteNotAccessedSince(Instant cutoff);
 
     /**
      * Find a dump by the key from its url, looking up legacy keys by the hash they were stored under

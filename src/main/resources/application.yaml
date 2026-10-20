@@ -6,6 +6,13 @@ spring:
     username: dump
     password: dump
 
+dump:
+#  githubToken: ""
+  expiry:
+    enabled: true
+    after: 365d
+    check-interval: 1h
+
 server:
   port: 8082
 
