@@ -36,6 +36,8 @@ import org.geysermc.dump.KeyResponse;
 import org.geysermc.dump.database.model.StoredDump;
 import org.geysermc.dump.database.repository.DumpCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,11 +46,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DumpController {
+    private static final String CACHE_CONTROL = CacheControl.maxAge(Duration.ofHours(1)).cachePrivate().getHeaderValue();
 
     private final DumpCollection dumpCollection;
 
@@ -79,6 +83,7 @@ public class DumpController {
 
         dumpCollection.markAccessed(storedDump.get().id());
 
+        response.setHeader(HttpHeaders.CACHE_CONTROL, CACHE_CONTROL);
         response.setStatus(200);
         return storedDump.get().raw();
     }
@@ -105,6 +110,7 @@ public class DumpController {
 
         dumpCollection.markAccessed(storedDump.get().id());
 
+        response.setHeader(HttpHeaders.CACHE_CONTROL, CACHE_CONTROL);
         response.setStatus(200);
         return AnalysedDump.from(storedDump.get());
     }

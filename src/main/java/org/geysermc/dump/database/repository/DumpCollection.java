@@ -36,6 +36,8 @@ import java.util.Optional;
 public interface DumpCollection extends Repository<StoredDump, String> {
     StoredDump save(StoredDump dump);
 
+    Optional<StoredDump> findById(String id);
+
     Optional<StoredDump> findByIdAndLegacy(String id, boolean legacy);
 
     /**
@@ -62,6 +64,6 @@ public interface DumpCollection extends Repository<StoredDump, String> {
             return findByIdAndLegacy(StoredDump.legacyId(key), true);
         }
 
-        return findByIdAndLegacy(key, false);
+        return findById(key);
     }
 }

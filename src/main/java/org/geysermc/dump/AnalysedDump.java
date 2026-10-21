@@ -32,11 +32,13 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public record AnalysedDump(
     GitData gitData,
-    List<String> problems,
+    Set<String> problems,
     String raw,
     Instant createdAt
 ) {
@@ -63,7 +65,7 @@ public record AnalysedDump(
 
         GitData gitData = GitData.from(gitInfo);
 
-        List<String> problems = new ArrayList<>(storedDump.problems());
+        Set<String> problems = new HashSet<>(storedDump.problems());
         if (!gitData.latest()) {
             problems.add("You aren't on the latest Geyser version! Please [download](https://geysermc.org/download) the latest version.");
         }
