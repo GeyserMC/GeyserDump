@@ -24,4 +24,10 @@ public class RedirectController {
     public void dump(HttpServletResponse response) throws IOException {
         response.sendRedirect("https://geysermc.org/utilities/dump-viewer");
     }
+
+    @Hidden
+    @GetMapping("/docs")
+    public void docs(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/docs/");
+    }
 }

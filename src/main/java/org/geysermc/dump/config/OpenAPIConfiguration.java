@@ -23,7 +23,7 @@ public class OpenAPIConfiguration {
                 .version("v1")
             )
             .servers(List.of(
-                new Server().url("https://dump.geysermc.org")
+                new Server().url("/").description("Default server")
             ));
     }
 
