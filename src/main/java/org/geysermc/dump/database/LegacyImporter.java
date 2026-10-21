@@ -41,7 +41,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -79,11 +81,18 @@ public class LegacyImporter implements ApplicationRunner {
         int existing = 0;
         int skipped = 0;
         List<StoredDump> batch = new ArrayList<>(BATCH_SIZE);
+        Set<String> existingIds = new HashSet<>(jdbcTemplate.queryForList("SELECT id FROM dumps WHERE legacy", String.class));
 
         try (DirectoryStream<Path> files = Files.newDirectoryStream(directory)) {
             for (Path file : files) {
                 String id = file.getFileName().toString();
                 if (!Files.isRegularFile(file) || !FILE_NAME.matcher(id).matches()) {
+                    continue;
+                }
+
+                // Skip dumps that are already in the database
+                if (existingIds.contains(id)) {
+                    existing++;
                     continue;
                 }
 

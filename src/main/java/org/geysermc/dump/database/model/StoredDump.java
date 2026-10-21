@@ -36,16 +36,17 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Table("dumps")
 public record StoredDump(
     @Id String id,
-    List<String> problems,
+    Set<String> problems,
     String raw,
     Instant createdAt,
     Instant lastAccessed,
@@ -100,16 +101,19 @@ public record StoredDump(
         if (dump.isMissingNode()) {
             throw new IllegalArgumentException("Empty dump");
         }
+        if (!dump.isObject()) {
+            throw new IllegalArgumentException("Invalid dump");
+        }
 
         // The old GeyserDump accepted any JSON, so not every legacy dump can be checked
-        List<String> problems;
+        Set<String> problems;
         try {
             problems = checkIssues(dump);
         } catch (JacksonException ignored) {
-            problems = List.of();
+            problems = Set.of();
         }
 
-        return new StoredDump(id, problems, raw, createdAt, Instant.now(), true);
+        return new StoredDump(id, problems, dump.toString(), createdAt, Instant.now(), true);
     }
 
     public static StoredDump from(String dumpData) {
@@ -135,7 +139,7 @@ public record StoredDump(
         return new StoredDump(null, checkIssues(dump), dump.toString(), now, now, false);
     }
 
-    private static List<String> checkIssues(JsonNode dump) throws JacksonException {
+    private static Set<String> checkIssues(JsonNode dump) throws JacksonException {
         JsonNode platformNode = dump.required("bootstrapInfo").required("platform");
         String platform = "";
         if (platformNode.isString()) {
@@ -143,7 +147,7 @@ public record StoredDump(
         } else {
             platform = platformNode.required("platformName").stringValue().toUpperCase();
         }
-        List<String> problems = new ArrayList<>();
+        Set<String> problems = new HashSet<>();
 
         // Check plugins and stuff for potential issues
         for (AbstractCheck issueCheck : CHECKS) {
@@ -151,6 +155,7 @@ public record StoredDump(
                 try {
                     problems.addAll(issueCheck.checkIssues(dump));
                 } catch (JacksonException ignored) {
+                    problems.add("One or more problem checks failed to run");
                 }
             }
         }
